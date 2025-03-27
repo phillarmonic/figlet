@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/lukesampson/figlet/figletlib"
+	"github.com/zekrotja/figlet/figletlib"
 )
 
 const (
@@ -38,12 +38,12 @@ func printInfoCode(infocode int, infodata []string) {
 	fmt.Println(infodata[infocode])
 }
 
-func listFonts(fontsdir string) {
+func listFonts(loader *figletlib.Loader, fontsdir string) {
 	fmt.Printf("Fonts in %v:\n", fontsdir)
-	fonts, _ := figletlib.FontNamesInDir(fontsdir)
+	fonts, _ := loader.FontNamesInDir()
 	for _, fontname := range fonts {
 		fmt.Printf("%v:\n", fontname)
-		f, err := figletlib.GetFontByName(fontsdir, fontname)
+		f, err := loader.GetFontByName(fontname)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -80,8 +80,10 @@ func main() {
 		}
 	}
 
+	loader := figletlib.NewLoader(os.DirFS(fontsdir))
+
 	if *list {
-		listFonts(fontsdir)
+		listFonts(loader, "")
 		os.Exit(0)
 	}
 
@@ -102,7 +104,7 @@ func main() {
 		align = "center"
 	}
 
-	f, err := figletlib.GetFontByName(fontsdir, *fontname)
+	f, err := loader.GetFontByName(*fontname)
 	if err != nil {
 		fmt.Println("ERROR: couldn't find font", *fontname, "in dir", fontsdir)
 		os.Exit(1)

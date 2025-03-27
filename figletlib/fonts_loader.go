@@ -1,16 +1,39 @@
 package figletlib
 
 import (
-	"errors"
+	"embed"
 	"go/build"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 const (
-	pkgName = "github.com/lukesampson/figlet"
+	pkgName = "github.com/zekrotja/figlet"
 )
+
+var (
+	//go:embed fonts
+	embeddedFonts    embed.FS
+	EmbeddedFonts, _ = fs.Sub(embeddedFonts, "fonts")
+)
+
+type Loader struct {
+	fsys fs.FS
+}
+
+func NewLoader(fsys fs.FS) *Loader {
+	return &Loader{fsys: fsys}
+}
+
+func NewDirLoader(dir string) *Loader {
+	return NewLoader(os.DirFS(dir))
+}
+
+func NewEmbededLoader() *Loader {
+	return NewLoader(EmbeddedFonts)
+}
 
 func GuessFontsDirectory() string {
 	bin := os.Args[0]
@@ -46,9 +69,8 @@ func GuessFontsDirectory() string {
 	return ""
 }
 
-func FontNamesInDir(dir string) ([]string, error) {
-	glob := filepath.Join(dir, "*.flf")
-	matches, err := filepath.Glob(glob)
+func (t *Loader) FontNamesInDir() ([]string, error) {
+	matches, err := fs.Glob(t.fsys, "*.flf")
 	if err != nil {
 		return nil, err
 	}
@@ -62,19 +84,10 @@ func FontNamesInDir(dir string) ([]string, error) {
 	return fontNames, nil
 }
 
-func GetFontByName(dirname, name string) (*Font, error) {
-	if dirname == "" {
-		dirname := GuessFontsDirectory()
-		if dirname == "" {
-			return nil, errors.New("Could not find fonts directory!")
-		}
-	}
-
+func (t *Loader) GetFontByName(name string) (*Font, error) {
 	if !strings.HasSuffix(name, ".flf") {
 		name += ".flf"
 	}
 
-	fontpath := filepath.Join(dirname, name)
-
-	return ReadFont(fontpath)
+	return t.ReadFont(name)
 }
