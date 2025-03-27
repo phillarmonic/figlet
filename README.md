@@ -1,5 +1,4 @@
-Figlet
-======
+# Figlet
 
 This is a port of Figlet from C to the Go programming language.
 
@@ -12,11 +11,12 @@ Figlet is a program that makes large letters out of ordinary text.
  |   |\|/  |/  |/  /  \_    \ V  V / (_) | |  | | (_| |_|
  |   |/|__/|__/|__/\__/      \_/\_/ \___/|_|  |_|\__,_(_)
 
- ```
+```
 
 For information about the original FIGlet, see [figlet.org](http://www.figlet.org/).
 
 ### Usage
+
 ```
 figlet [ -lcrhR ] [ -f fontfile ]
        [ -w outputwidth ] [ -m smushmode ]
@@ -24,6 +24,7 @@ figlet [ -lcrhR ] [ -f fontfile ]
 ```
 
 ###### Options
+
 `-h`
 Shows help info: really just the usage info above plus the address of this page.
 
@@ -59,7 +60,6 @@ Also, the original version of this program is over 20 years old, and the code sh
 
 I like to think that the Go version is a lot clearer, especially with a lot of the legacy options stripped out. Although I admit the Go code is not the best—this is my first time programming in Go. I'd appreciate pull requests that make it better.
 
-
 ### Differences from the original version
 
 ###### Control files
@@ -89,36 +89,37 @@ Not supported
 `-R`
 This is supported, but it behaves differently in this version. In the original it meant "Right-to-left" print direction. In this version it means "Reverse" the print direction, as specified in the font file. Most times the font file is what you want, so this is mainly for testing and as a gimmick to confuse people.
 
-
 ### Use as a library
 
 You can generate your own text at runtime using `figletlib`.
 
 Here's an example of how to write to an arbitrary output stream, eg. `http.ResponseWriter`:
 
-    import (
-      "fmt"
-      "net/http"
-      "os"
-      "path/filepath"
+```go
+import (
+	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
 
-      "github.com/lukesampson/figlet/figletlib"
-    )
+	"github.com/lukesampson/figlet/figletlib"
+)
 
-    func init() {
-      http.HandleFunc("/", handler)
-    }
+func init() {
+	http.HandleFunc("/", handler)
+}
 
-    func handler(w http.ResponseWriter, r *http.Request) {
-      cwd, _ := os.Getwd()
-      fontsdir := filepath.Join(cwd, "fonts")
+func handler(w http.ResponseWriter, r *http.Request) {
+	cwd, _ := os.Getwd()
+	loader := figletlib.NewDirLoader(filepath.Join(cwd, "fonts"))
 
-      f, err := figletlib.GetFontByName(fontsdir, "slant")
-      if err != nil {
-        w.Header().Set("Content-Type", "text/plain")
-        fmt.Fprintln(w, "Could not find that font!")
-        return
-      }
+	f, err := loader.GetFontByName(fontsdir, "slant")
+	if err != nil {
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintln(w, "Could not find that font!")
+		return
+	}
 
-      figletlib.FPrintMsg(w, "Hello, world!", f, 80, f.Settings(), "left")
-    }
+	figletlib.FPrintMsg(w, "Hello, world!", f, 80, f.Settings(), "left")
+}
+```
