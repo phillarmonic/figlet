@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/zekrotja/figlet/figletlib"
+	"github.com/phillarmonic/figlet/figletlib"
 )
 
 const (

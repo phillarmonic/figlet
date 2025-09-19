@@ -2,6 +2,8 @@
 
 This is a port of Figlet from C to the Go programming language.
 
+This is a fork from upstream: https://github.com/zekroTJA/figlet
+
 Figlet is a program that makes large letters out of ordinary text.
 
 ```
