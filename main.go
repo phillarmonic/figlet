@@ -29,17 +29,17 @@ func printHelp() {
 	fmt.Println("For more info see https://github.com/lukesampson/figlet")
 }
 
-func printVersion(fontsdir string) {
+func printVersion(fontsSource string) {
 	fmt.Println("Figlet version: go-1.0")
-	fmt.Printf("Fonts: %v\n", fontsdir)
+	fmt.Printf("Fonts: %v\n", fontsSource)
 }
 
 func printInfoCode(infocode int, infodata []string) {
 	fmt.Println(infodata[infocode])
 }
 
-func listFonts(loader *figletlib.Loader, fontsdir string) {
-	fmt.Printf("Fonts in %v:\n", fontsdir)
+func listFonts(loader figletlib.FontLoader, fontsSource string) {
+	fmt.Printf("Fonts in %v:\n", fontsSource)
 	fonts, _ := loader.FontNamesInDir()
 	for _, fontname := range fonts {
 		fmt.Printf("%v:\n", fontname)
@@ -71,19 +71,30 @@ func main() {
 	infoCode4 := flag.Bool("I4", false, "show output width")
 	infoCode5 := flag.Bool("I5", false, "show supported font formats")
 	flag.Parse()
+	var loader figletlib.FontLoader
 	fontsdir := *fontsDirectory
+	var fontsSource string
+
 	if fontsdir == "" {
-		fontsdir = figletlib.GuessFontsDirectory()
-		if fontsdir == "" {
-			fmt.Println("ERROR: couldn't find fonts directory, specify -d")
-			os.Exit(1)
+		// Try to auto-detect fonts directory
+		detectedDir := figletlib.GuessFontsDirectory()
+		if detectedDir != "" {
+			// Use combined loader: detected directory + embedded fonts
+			loader = figletlib.NewCombinedLoaderWithDir(detectedDir)
+			fontsSource = fmt.Sprintf("%s + embedded", detectedDir)
+		} else {
+			// Use only embedded fonts
+			loader = figletlib.NewEmbededLoader()
+			fontsSource = "embedded"
 		}
+	} else {
+		// Use combined loader: specified directory + embedded fonts
+		loader = figletlib.NewCombinedLoaderWithDir(fontsdir)
+		fontsSource = fmt.Sprintf("%s + embedded", fontsdir)
 	}
 
-	loader := figletlib.NewLoader(os.DirFS(fontsdir))
-
 	if *list {
-		listFonts(loader, "")
+		listFonts(loader, fontsSource)
 		os.Exit(0)
 	}
 
@@ -93,7 +104,7 @@ func main() {
 	}
 
 	if *version {
-		printVersion(fontsdir)
+		printVersion(fontsSource)
 		os.Exit(0)
 	}
 
@@ -106,7 +117,7 @@ func main() {
 
 	f, err := loader.GetFontByName(*fontname)
 	if err != nil {
-		fmt.Println("ERROR: couldn't find font", *fontname, "in dir", fontsdir)
+		fmt.Println("ERROR: couldn't find font", *fontname, "in", fontsSource)
 		os.Exit(1)
 	}
 
@@ -131,7 +142,7 @@ func main() {
 
 	if ic > 1 && ic < 6 {
 		outputWidthString := strconv.Itoa(*outputWidth)
-		var infoData = []string{2: fontsdir, 3: *fontname, 4: outputWidthString, 5: "flf2"}
+		var infoData = []string{2: fontsSource, 3: *fontname, 4: outputWidthString, 5: "flf2"}
 		printInfoCode(ic, infoData)
 		os.Exit(0)
 	} else if ic != -1 {
