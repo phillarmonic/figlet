@@ -188,12 +188,53 @@ func main() {
 }
 ```
 
-#### **Colorful Output**
+#### **Advanced Color Examples**
+
+##### **Rainbow Colors (Gay Mode)**
 
 ```go
 package main
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/phillarmonic/figlet/figletlib"
+)
+
+func main() {
+	loader := figletlib.NewEmbededLoader()
+	font, err := loader.GetFontByName("big")
+	if err != nil {
+		panic(err)
+	}
+	
+	// Rainbow colors (pride flag mode)
+	rainbowConfig := figletlib.ColorConfig{
+		Mode: figletlib.ColorModeRainbow,
+	}
+	
+	fmt.Println("🏳️‍🌈 Rainbow Text Examples:")
+	figletlib.PrintColoredMsg("PRIDE!", font, 80, font.Settings(), "center", rainbowConfig)
+	
+	// Different fonts with rainbow
+	fonts := []string{"standard", "slant", "shadow", "bubble"}
+	for _, fontName := range fonts {
+		if f, err := loader.GetFontByName(fontName); err == nil {
+			fmt.Printf("\n--- %s font ---\n", fontName)
+			figletlib.PrintColoredMsg("RAINBOW", f, 80, f.Settings(), "left", rainbowConfig)
+		}
+	}
+}
+```
+
+##### **Hex Color Gradients**
+
+```go
+package main
+
+import (
+	"fmt"
 	"os"
 
 	"github.com/phillarmonic/figlet/figletlib"
@@ -203,21 +244,249 @@ func main() {
 	loader := figletlib.NewEmbededLoader()
 	font, _ := loader.GetFontByName("big")
 	
-	// Rainbow colors
-	rainbowConfig := figletlib.ColorConfig{
-		Mode: figletlib.ColorModeRainbow,
-	}
-	figletlib.PrintColoredMsg("RAINBOW!", font, 80, font.Settings(), "left", rainbowConfig)
+	// Hex colors with # prefix
+	startColor, _ := figletlib.ParseColor("#FF6B35")  // Orange
+	endColor, _ := figletlib.ParseColor("#004E89")    // Blue
 	
-	// Gradient colors
-	startColor, _ := figletlib.ParseColor("red")
-	endColor, _ := figletlib.ParseColor("blue")
 	gradientConfig := figletlib.ColorConfig{
 		Mode:       figletlib.ColorModeGradient,
 		StartColor: startColor,
 		EndColor:   endColor,
 	}
-	figletlib.PrintColoredMsg("GRADIENT!", font, 80, font.Settings(), "left", gradientConfig)
+	
+	fmt.Println("🎨 Hex Color Gradient:")
+	figletlib.PrintColoredMsg("HEX COLORS", font, 80, font.Settings(), "center", gradientConfig)
+	
+	// Hex colors without # prefix
+	startColor2, _ := figletlib.ParseColor("FF1493")  // Deep Pink
+	endColor2, _ := figletlib.ParseColor("00CED1")    // Dark Turquoise
+	
+	gradientConfig2 := figletlib.ColorConfig{
+		Mode:       figletlib.ColorModeGradient,
+		StartColor: startColor2,
+		EndColor:   endColor2,
+	}
+	
+	fmt.Println("\n🌺 Pink to Turquoise:")
+	figletlib.PrintColoredMsg("BEAUTIFUL", font, 80, font.Settings(), "center", gradientConfig2)
+}
+```
+
+##### **RGB Color Values**
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/phillarmonic/figlet/figletlib"
+)
+
+func main() {
+	loader := figletlib.NewEmbededLoader()
+	font, _ := loader.GetFontByName("slant")
+	
+	// RGB format colors
+	startColor, _ := figletlib.ParseColor("rgb(255, 0, 255)")  // Magenta
+	endColor, _ := figletlib.ParseColor("rgb(0, 255, 0)")      // Lime
+	
+	gradientConfig := figletlib.ColorConfig{
+		Mode:       figletlib.ColorModeGradient,
+		StartColor: startColor,
+		EndColor:   endColor,
+	}
+	
+	fmt.Println("🔬 RGB Color Gradient:")
+	figletlib.PrintColoredMsg("RGB VALUES", font, 80, font.Settings(), "center", gradientConfig)
+	
+	// Case insensitive RGB
+	startColor2, _ := figletlib.ParseColor("RGB(255,165,0)")   // Orange
+	endColor2, _ := figletlib.ParseColor("rgb(75,0,130)")      // Indigo
+	
+	gradientConfig2 := figletlib.ColorConfig{
+		Mode:       figletlib.ColorModeGradient,
+		StartColor: startColor2,
+		EndColor:   endColor2,
+	}
+	
+	fmt.Println("\n🌅 Orange to Indigo:")
+	figletlib.PrintColoredMsg("SUNSET", font, 80, font.Settings(), "center", gradientConfig2)
+}
+```
+
+##### **Direct RGB Struct Usage**
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/phillarmonic/figlet/figletlib"
+)
+
+func main() {
+	loader := figletlib.NewEmbededLoader()
+	font, _ := loader.GetFontByName("shadow")
+	
+	// Create RGB colors directly
+	neonPink := figletlib.RGB{R: 255, G: 20, B: 147}    // Hot Pink
+	electricBlue := figletlib.RGB{R: 0, G: 191, B: 255}  // Deep Sky Blue
+	
+	gradientConfig := figletlib.ColorConfig{
+		Mode:       figletlib.ColorModeGradient,
+		StartColor: neonPink,
+		EndColor:   electricBlue,
+	}
+	
+	fmt.Println("⚡ Neon Colors:")
+	figletlib.PrintColoredMsg("ELECTRIC", font, 80, font.Settings(), "center", gradientConfig)
+	
+	// Cyberpunk colors
+	cyberGreen := figletlib.RGB{R: 0, G: 255, B: 65}
+	cyberPurple := figletlib.RGB{R: 138, G: 43, B: 226}
+	
+	cyberConfig := figletlib.ColorConfig{
+		Mode:       figletlib.ColorModeGradient,
+		StartColor: cyberGreen,
+		EndColor:   cyberPurple,
+	}
+	
+	fmt.Println("\n🤖 Cyberpunk Style:")
+	figletlib.PrintColoredMsg("CYBER", font, 80, font.Settings(), "center", cyberConfig)
+}
+```
+
+##### **Color Interpolation & Custom Effects**
+
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"os"
+	"strings"
+
+	"github.com/phillarmonic/figlet/figletlib"
+)
+
+func main() {
+	loader := figletlib.NewEmbededLoader()
+	font, _ := loader.GetFontByName("big")
+	
+	// Create a custom color effect by interpolating between multiple colors
+	colors := []figletlib.RGB{
+		{255, 0, 0},    // Red
+		{255, 165, 0},  // Orange  
+		{255, 255, 0},  // Yellow
+		{0, 255, 0},    // Green
+		{0, 0, 255},    // Blue
+		{75, 0, 130},   // Indigo
+		{238, 130, 238}, // Violet
+	}
+	
+	fmt.Println("🌈 Multi-Color Interpolation:")
+	
+	// Create multiple gradients to simulate rainbow effect
+	for i := 0; i < len(colors)-1; i++ {
+		gradientConfig := figletlib.ColorConfig{
+			Mode:       figletlib.ColorModeGradient,
+			StartColor: colors[i],
+			EndColor:   colors[i+1],
+		}
+		
+		word := fmt.Sprintf("COLOR%d", i+1)
+		figletlib.PrintColoredMsg(word, font, 80, font.Settings(), "left", gradientConfig)
+	}
+}
+
+// Custom color interpolation function
+func interpolateColors(start, end figletlib.RGB, steps int) []figletlib.RGB {
+	result := make([]figletlib.RGB, steps)
+	for i := 0; i < steps; i++ {
+		factor := float64(i) / float64(steps-1)
+		result[i] = start.Interpolate(end, factor)
+	}
+	return result
+}
+```
+
+##### **Colorful Web Server**
+
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/phillarmonic/figlet/figletlib"
+)
+
+func main() {
+	loader := figletlib.NewEmbededLoader()
+	
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		font, _ := loader.GetFontByName("big")
+		
+		// Rainbow welcome message
+		rainbowConfig := figletlib.ColorConfig{
+			Mode: figletlib.ColorModeRainbow,
+		}
+		
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		fmt.Fprintln(w, "🌈 Welcome to the Colorful Figlet Server! 🌈")
+		fmt.Fprintln(w)
+		
+		figletlib.FPrintColoredMsg(w, "WELCOME", font, 80, font.Settings(), "center", rainbowConfig)
+		fmt.Fprintln(w)
+	})
+	
+	http.HandleFunc("/gradient", func(w http.ResponseWriter, r *http.Request) {
+		font, _ := loader.GetFontByName("slant")
+		
+		// Time-based gradient colors
+		now := time.Now()
+		hour := now.Hour()
+		
+		var startColor, endColor figletlib.RGB
+		var message string
+		
+		switch {
+		case hour >= 6 && hour < 12: // Morning
+			startColor, _ = figletlib.ParseColor("#FFD700") // Gold
+			endColor, _ = figletlib.ParseColor("#FF6347")   // Tomato
+			message = "GOOD MORNING"
+		case hour >= 12 && hour < 18: // Afternoon  
+			startColor, _ = figletlib.ParseColor("#00BFFF") // Deep Sky Blue
+			endColor, _ = figletlib.ParseColor("#32CD32")   // Lime Green
+			message = "GOOD AFTERNOON"
+		default: // Evening/Night
+			startColor, _ = figletlib.ParseColor("#4B0082") // Indigo
+			endColor, _ = figletlib.ParseColor("#8A2BE2")   // Blue Violet
+			message = "GOOD EVENING"
+		}
+		
+		gradientConfig := figletlib.ColorConfig{
+			Mode:       figletlib.ColorModeGradient,
+			StartColor: startColor,
+			EndColor:   endColor,
+		}
+		
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		fmt.Fprintf(w, "🕐 Time-based gradient (Hour: %d)\n\n", hour)
+		figletlib.FPrintColoredMsg(w, message, font, 80, font.Settings(), "center", gradientConfig)
+	})
+	
+	fmt.Println("🚀 Colorful server running on http://localhost:8080")
+	fmt.Println("📍 Try http://localhost:8080/gradient for time-based colors!")
+	http.ListenAndServe(":8080", nil)
 }
 ```
 
@@ -246,11 +515,34 @@ func main() {
 
 #### **Available Functions**
 
+##### **Font Loading**
 - `NewEmbededLoader()` - Use embedded fonts (recommended)
-- `NewDirLoader(dir)` - Use fonts from directory
+- `NewDirLoader(dir)` - Use fonts from directory  
 - `NewCombinedLoaderWithDir(dir)` - Use external + embedded fonts
-- `PrintMsg()` - Print to stdout
-- `FPrintMsg(writer, ...)` - Print to any io.Writer
-- `PrintColoredMsg()` - Print with colors to stdout
-- `FPrintColoredMsg(writer, ...)` - Print with colors to any io.Writer
+
+##### **Basic Text Output**
+- `PrintMsg(msg, font, width, settings, align)` - Print to stdout
+- `FPrintMsg(writer, msg, font, width, settings, align)` - Print to any io.Writer
+
+##### **Colored Text Output**
+- `PrintColoredMsg(msg, font, width, settings, align, colorConfig)` - Print with colors to stdout
+- `FPrintColoredMsg(writer, msg, font, width, settings, align, colorConfig)` - Print with colors to any io.Writer
+
+##### **Color Functions**
 - `ParseColor(colorStr)` - Parse color strings (hex, rgb(), named colors)
+- `RGB{R, G, B uint8}` - Create RGB color directly
+- `(rgb RGB) ToANSI()` - Convert RGB to ANSI escape sequence
+- `(start RGB) Interpolate(end RGB, factor float64)` - Interpolate between two colors
+- `GetRainbowColor(position float64)` - Get rainbow color at position (0.0-1.0)
+- `HSVtoRGB(h, s, v float64)` - Convert HSV to RGB
+
+##### **Color Configuration**
+- `ColorConfig{Mode, StartColor, EndColor}` - Color configuration struct
+- `ColorModeNone` - No coloring
+- `ColorModeGradient` - Gradient between two colors
+- `ColorModeRainbow` - Rainbow/pride flag colors
+
+##### **Supported Color Formats**
+- **Hex**: `#FF0000`, `#ff0000`, `FF0000`, `ff0000`
+- **RGB**: `rgb(255,0,0)`, `RGB(255,0,0)`
+- **Named**: `red`, `blue`, `green`, `yellow`, `magenta`, `cyan`, `white`, `black`, `orange`, `purple`, `pink`, `lime`, `navy`, `teal`, `silver`, `gray`, `maroon`, `olive`
