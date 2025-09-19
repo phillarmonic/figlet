@@ -20,7 +20,8 @@ For information about the original FIGlet, see [figlet.org](http://www.figlet.or
 ### Usage
 
 ```
-figlet [ -lcrhR ] [ -f fontfile ]
+figlet [ -lcrhR ] [ -f fontfile ] [ --gay ]
+       [ --gradient-start color --gradient-end color ]
        [ -w outputwidth ] [ -m smushmode ]
        [ message ]
 ```
@@ -48,8 +49,41 @@ Use a different "smush mode". Smush modes control how Figlet "smushes" together 
 `-list`
 Lists the available fonts, with a preview of each.
 
+`--gay`
+Rainbow colors (pride flag mode). Creates vibrant rainbow effects across the text.
+
+`--gradient-start color` and `--gradient-end color`
+Create a gradient from the start color to the end color across the text. Colors can be specified as:
+- Hex colors: `#FF0000`, `#ff0000`, `FF0000`, `ff0000`
+- RGB values: `rgb(255,0,0)`, `RGB(255,0,0)`
+- Named colors: `red`, `blue`, `green`, `yellow`, `magenta`, `cyan`, `white`, `black`, `orange`, `purple`, `pink`, `lime`, `navy`, `teal`, `silver`, `gray`, `maroon`, `olive`
+
+Both `--gradient-start` and `--gradient-end` must be specified together.
+
 `message`
 The message you want to print out. If you don't specify one, Figlet will go into interactive mode where it waits for you to enter a line of text and then prints it out in large letters. You can do this as many times as you like, and use Ctrl-C to quit.
+
+### Color Examples
+
+```bash
+# Rainbow colors (pride flag mode)
+figlet --gay "RAINBOW TEXT"
+
+# Gradient from red to blue
+figlet --gradient-start red --gradient-end blue "GRADIENT"
+
+# Gradient with hex colors
+figlet --gradient-start "#FF6B35" --gradient-end "#004E89" "HEX COLORS"
+
+# Gradient with RGB values
+figlet --gradient-start "rgb(255,0,255)" --gradient-end "rgb(0,255,0)" "RGB"
+
+# Rainbow font listing
+figlet --gay -list
+
+# Gradient font listing
+figlet --gradient-start orange --gradient-end purple -list
+```
 
 ### Why did you port it?
 
@@ -104,7 +138,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lukesampson/figlet/figletlib"
+	"github.com/phillarmonic/figlet/figletlib"
 )
 
 func init() {
@@ -115,7 +149,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	cwd, _ := os.Getwd()
 	loader := figletlib.NewDirLoader(filepath.Join(cwd, "fonts"))
 
-	f, err := loader.GetFontByName(fontsdir, "slant")
+	f, err := loader.GetFontByName("slant")
 	if err != nil {
 		w.Header().Set("Content-Type", "text/plain")
 		fmt.Fprintln(w, "Could not find that font!")

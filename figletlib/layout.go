@@ -25,7 +25,9 @@ const (
 // 1: Smush equal chars (not hardblanks)
 // 2: Smush '_' with any char in hierarchy below
 // 4: hierarchy: "|", "/\", "[]", "{}", "()", "<>"
-//    Each class in hier. can be replaced by later class.
+//
+//	Each class in hier. can be replaced by later class.
+//
 // 8: [ + ] -> |, { + } -> |, ( + ) -> |
 // 16: / + \ -> X, > + < -> X (only in that order)
 // 32: hardblank + hardblank -> hardblank
@@ -89,7 +91,7 @@ func smushem(lch rune, rch rune, s Settings) rune {
 		inHrchy := func(low rune, high rune, i int) bool {
 			return strings.ContainsRune(hrchy[i], low) && strings.ContainsRune(strings.Join(hrchy[i+1:], ""), high)
 		}
-		for i, _ := range hrchy {
+		for i := range hrchy {
 			if inHrchy(lch, rch, i) {
 				return rch
 			}

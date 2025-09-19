@@ -26,7 +26,7 @@ func printHelp() {
 	printUsage()
 	flag.PrintDefaults()
 	fmt.Println()
-	fmt.Println("For more info see https://github.com/lukesampson/figlet")
+	fmt.Println("For more info see https://github.com/phillarmonic/figlet")
 }
 
 func printVersion(fontsSource string) {
@@ -38,7 +38,7 @@ func printInfoCode(infocode int, infodata []string) {
 	fmt.Println(infodata[infocode])
 }
 
-func listFonts(loader figletlib.FontLoader, fontsSource string) {
+func listFonts(loader figletlib.FontLoader, fontsSource string, colorConfig figletlib.ColorConfig) {
 	fmt.Printf("Fonts in %v:\n", fontsSource)
 	fonts, _ := loader.FontNamesInDir()
 	for _, fontname := range fonts {
@@ -49,7 +49,11 @@ func listFonts(loader figletlib.FontLoader, fontsSource string) {
 		}
 
 		s := f.Settings()
-		figletlib.PrintMsg(fontname, f, 80, s, "left")
+		if colorConfig.Mode != figletlib.ColorModeNone {
+			figletlib.PrintColoredMsg(fontname, f, 80, s, "left", colorConfig)
+		} else {
+			figletlib.PrintMsg(fontname, f, 80, s, "left")
+		}
 		fmt.Println()
 	}
 }
@@ -70,6 +74,11 @@ func main() {
 	infoCode3 := flag.Bool("I3", false, "show default font")
 	infoCode4 := flag.Bool("I4", false, "show output width")
 	infoCode5 := flag.Bool("I5", false, "show supported font formats")
+
+	// color options
+	gradientStart := flag.String("gradient-start", "", "start color for gradient (hex, rgb(), or named color)")
+	gradientEnd := flag.String("gradient-end", "", "end color for gradient (hex, rgb(), or named color)")
+	rainbow := flag.Bool("gay", false, "rainbow colors (pride flag mode)")
 	flag.Parse()
 	var loader figletlib.FontLoader
 	fontsdir := *fontsDirectory
@@ -93,8 +102,35 @@ func main() {
 		fontsSource = fmt.Sprintf("%s + embedded", fontsdir)
 	}
 
+	// Configure colors early so we can use them in list mode
+	var colorConfig figletlib.ColorConfig
+	colorConfig.Mode = figletlib.ColorModeNone
+
+	if *rainbow {
+		colorConfig.Mode = figletlib.ColorModeRainbow
+	} else if *gradientStart != "" && *gradientEnd != "" {
+		startColor, err := figletlib.ParseColor(*gradientStart)
+		if err != nil {
+			fmt.Printf("ERROR: invalid start color '%s': %v\n", *gradientStart, err)
+			os.Exit(1)
+		}
+
+		endColor, err := figletlib.ParseColor(*gradientEnd)
+		if err != nil {
+			fmt.Printf("ERROR: invalid end color '%s': %v\n", *gradientEnd, err)
+			os.Exit(1)
+		}
+
+		colorConfig.Mode = figletlib.ColorModeGradient
+		colorConfig.StartColor = startColor
+		colorConfig.EndColor = endColor
+	} else if *gradientStart != "" || *gradientEnd != "" {
+		fmt.Println("ERROR: both --gradient-start and --gradient-end must be specified for gradient mode")
+		os.Exit(1)
+	}
+
 	if *list {
-		listFonts(loader, fontsSource)
+		listFonts(loader, fontsSource, colorConfig)
 		os.Exit(0)
 	}
 
@@ -161,8 +197,16 @@ func main() {
 				}
 				msg = ""
 			}
-			figletlib.PrintMsg(msg, f, maxwidth, s, align)
+			if colorConfig.Mode != figletlib.ColorModeNone {
+				figletlib.PrintColoredMsg(msg, f, maxwidth, s, align, colorConfig)
+			} else {
+				figletlib.PrintMsg(msg, f, maxwidth, s, align)
+			}
 		}
 	}
-	figletlib.PrintMsg(msg, f, maxwidth, s, align)
+	if colorConfig.Mode != figletlib.ColorModeNone {
+		figletlib.PrintColoredMsg(msg, f, maxwidth, s, align, colorConfig)
+	} else {
+		figletlib.PrintMsg(msg, f, maxwidth, s, align)
+	}
 }
