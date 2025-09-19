@@ -2,10 +2,10 @@ package figletlib
 
 import (
 	"strings"
-	//"fmt"
+	//"fmt".
 )
 
-// smush modes
+// smush modes.
 const (
 	SMEqual     = 1
 	SMLowLine   = 2
@@ -58,6 +58,7 @@ func smushem(lch rune, rch rune, s Settings) rune {
 		if s.rtol {
 			return lch
 		}
+
 		return rch
 	}
 
@@ -133,6 +134,7 @@ func smushem(lch rune, rch rune, s Settings) rune {
 			return 'X'
 		}
 	}
+
 	return 0
 }
 
@@ -181,6 +183,7 @@ func smushamt(char *FigText, line *FigText, s Settings) int {
 			maxsmush = rowsmush
 		}
 	}
+
 	return maxsmush
 }
 
@@ -201,6 +204,7 @@ func (s *Settings) SetRtoL(rtol bool) {
 // Adds the given character onto the end of the given line.
 func addChar(char *FigText, line *FigText, s Settings) FigText {
 	smushamount := smushamt(char, line, s)
+
 	return smushChar(char, line, smushamount, s)
 }
 
@@ -233,15 +237,15 @@ func smushChar(char *FigText, line *FigText, amount int, s Settings) FigText {
 				if rch != ' ' {
 					*left = append(*left, rch)
 				}
+
 				continue
 			}
 
 			lch := (*left)[column]
 			smushed := smushem(lch, rch, s)
 
-			//fmt.Printf("row %v, col %v, lch %q, rch %q, smushed %q\n", row, column, lch, rch, smushed)
+			// fmt.Printf("row %v, col %v, lch %q, rch %q, smushed %q\n", row, column, lch, rch, smushed)
 			(*left)[column] = smushed
-
 		}
 		*left = append(*left, (*right)[amount:]...)
 	}
@@ -250,12 +254,13 @@ func smushChar(char *FigText, line *FigText, amount int, s Settings) FigText {
 }
 
 // gets the font entry for the given character, or the 'missing'
-// character if the font doesn't contain this character
+// character if the font doesn't contain this character.
 func getChar(c rune, f *Font) *FigText {
 	l, ok := f.chars[c]
 	if !ok {
 		l = f.chars[0]
 	}
+
 	return &FigText{text: string(c), art: l}
 }
 
@@ -266,6 +271,7 @@ func getWord(w string, f *Font, s Settings) *FigText {
 		*word = addChar(c, word, s)
 	}
 	(*word).text = w
+
 	return word
 }
 
@@ -274,6 +280,7 @@ func getWords(msg string, f *Font, s Settings) []FigText {
 	for _, word := range strings.Split(msg, " ") {
 		words = append(words, *getWord(word, f, s))
 	}
+
 	return words
 }
 

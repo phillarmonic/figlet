@@ -1,0 +1,101 @@
+version: 2
+
+run:
+  timeout: 5m
+  tests: true
+  issues-exit-code: 1
+  allow-parallel-runners: true
+  go: "1.25"
+
+output:
+  format: colored-line-number
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  presets:
+    - bugs
+    - complexity
+    - performance
+    - style
+    - format
+  enable:
+    - gosec
+    - gocritic
+    - revive
+    - unconvert
+    - unparam
+    - misspell
+    - cyclop
+    - gocognit
+    - goconst
+    - exhaustive
+    - nilerr
+    - errcheck
+    - ineffassign
+    - staticcheck
+    - unused
+    - govet
+  disable:
+    # Disable overly strict linters
+    - depguard      # Allow internal imports
+    - exhaustruct   # Don't require all struct fields
+    - err113        # Allow dynamic errors
+    - wrapcheck     # Don't require wrapping all external errors
+    - paralleltest  # Don't require t.Parallel() in all tests
+    - testpackage   # Allow same package tests
+    - thelper       # Relax test helper requirements
+    - mnd           # Allow magic numbers
+    - godot         # Don't require periods in comments
+    - godox         # Allow TODO/FIXME comments
+    - nlreturn      # Don't require newlines before returns
+    - wsl           # Disable whitespace linter
+    - tagliatelle   # Don't enforce struct tag naming
+    - varnamelen    # Don't enforce variable name length
+    - ireturn       # Allow returning interfaces
+    - interfacebloat # Allow larger interfaces
+    - cyclop        # Disable cyclomatic complexity for now
+    - gocognit      # Disable cognitive complexity for now
+    - revive        # Disable most style checks for now
+    - gocritic      # Disable most code critic checks for now
+    - unconvert     # Allow unnecessary conversions
+    - unparam       # Allow unused parameters
+    - nilerr        # Allow returning nil when error is checked but not critical
+
+linters-settings:
+  cyclop:
+    max-complexity: 20  # Increased from default 10
+    package-average: 15.0
+  gocognit:
+    min-complexity: 50  # Increased from default 30
+  gocritic:
+    disabled-checks:
+      - commentFormatting  # Allow flexible comment formatting
+      - underef           # Allow explicit dereferencing for clarity
+      - ifElseChain       # Allow if-else chains instead of forcing switch
+  revive:
+    rules:
+      - name: exported
+        disabled: true  # Don't require comments on all exported items
+      - name: package-comments
+        disabled: true  # Don't require package comments
+      - name: empty-block
+        disabled: true  # Allow empty blocks
+      - name: var-naming
+        disabled: true  # Allow underscores in variable names
+      - name: receiver-naming
+        disabled: true  # Allow flexible receiver naming
+      - name: unused-parameter
+        disabled: true  # Allow unused parameters
+  nestif:
+    min-complexity: 8   # Increased from default 5
+  goconst:
+    min-len: 4          # Increased minimum length for constants
+    min-occurrences: 5  # Increased minimum occurrences
+
+formatters:
+  enable:
+    - gofmt
+    - gofumpt

@@ -83,7 +83,7 @@ func Test_smush_lowline(t *testing.T) {
 	}
 }
 
-func Test_smush_heirarchy(t *testing.T) {
+func Test_smush_hierarchy(t *testing.T) {
 	testSmushHierarchy('|', '\\', '\\', t)
 	testSmushHierarchy('}', '|', '}', t)
 
@@ -175,6 +175,7 @@ func testAddCharLine(l string, c string, expect string, t *testing.T) {
 func testSmushCharLine(l string, c string, amount int, expect string, t *testing.T) {
 	if amount > len(c) {
 		t.Errorf("amount %v is > character length %v", amount, len(c))
+
 		return
 	}
 	line := newFigText(1)
@@ -203,12 +204,15 @@ func testSettings(smushmode int) Settings {
 func testSmushLowLine(l rune, r rune, expect rune, t *testing.T) {
 	testSmush(l, r, SMKern+SMSmush+SMLowLine, expect, t)
 }
+
 func testSmushHierarchy(l rune, r rune, expect rune, t *testing.T) {
 	testSmush(l, r, SMKern+SMSmush+SMHierarchy, expect, t)
 }
+
 func testSmushPair(l rune, r rune, expect rune, t *testing.T) {
 	testSmush(l, r, SMKern+SMSmush+SMPair, expect, t)
 }
+
 func testSmush(l rune, r rune, mode int, expect rune, t *testing.T) {
 	if x := smushem(l, r, testSettings(mode)); x != expect {
 		t.Errorf("smush %q + %q => %q, want %q", l, r, x, expect)
@@ -221,6 +225,7 @@ func smushModes() []int {
 	for i := uint(0); i < 8; i++ {
 		modes[i+1] = 1 << i
 	}
+
 	return modes
 }
 

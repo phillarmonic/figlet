@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Ä Ö Ü ä ö ü ß
+// Ä Ö Ü ä ö ü ß.
 var deutsch = []rune{196, 214, 220, 228, 246, 252, 223}
 
 type fontHeader struct {
@@ -23,7 +23,16 @@ type fontHeader struct {
 }
 
 func readHeader(header string) (fontHeader, error) {
-	h := fontHeader{}
+	h := fontHeader{
+		hardblank:  0,
+		charheight: 0,
+		baseline:   0,
+		maxlen:     0,
+		smush:      0,
+		cmtlines:   0,
+		right2left: false,
+		smush2:     0,
+	}
 
 	magic_num := "flf2a"
 	if !strings.HasPrefix(header, magic_num) {
@@ -38,7 +47,7 @@ func readHeader(header string) (fontHeader, error) {
 	for i, s := range headerParts[1:] {
 		num, err := strconv.ParseInt(s, 10, 32)
 		if err != nil {
-			return h, fmt.Errorf("invalid font header: %v: %v", header, err)
+			return h, fmt.Errorf("invalid font header: %v: %w", header, err)
 		}
 		nums[i] = int(num)
 	}
@@ -156,8 +165,8 @@ func ReadFontFromBytes(bytes []byte) (*Font, error) {
 	// code-tagged characters
 	for currline < len(lines) {
 		var code int
-		_, err := fmt.Sscan(lines[currline], &code)
-		if err != nil {
+		if _, err := fmt.Sscan(lines[currline], &code); err != nil {
+			// End of font data, not an error
 			break
 		}
 

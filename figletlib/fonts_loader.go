@@ -19,7 +19,7 @@ var (
 	EmbeddedFonts, _ = fs.Sub(embeddedFonts, "fonts")
 )
 
-// FontLoader interface for loading fonts
+// FontLoader interface for loading fonts.
 type FontLoader interface {
 	FontNamesInDir() ([]string, error)
 	GetFontByName(name string) (*Font, error)
@@ -41,7 +41,7 @@ func NewEmbededLoader() *Loader {
 	return NewLoader(EmbeddedFonts)
 }
 
-// CombinedLoader can access fonts from multiple sources
+// CombinedLoader can access fonts from multiple sources.
 type CombinedLoader struct {
 	loaders []*Loader
 }
@@ -50,7 +50,7 @@ func NewCombinedLoader(loaders ...*Loader) *CombinedLoader {
 	return &CombinedLoader{loaders: loaders}
 }
 
-// NewCombinedLoaderWithDir creates a combined loader with external directory and embedded fonts
+// NewCombinedLoaderWithDir creates a combined loader with external directory and embedded fonts.
 func NewCombinedLoaderWithDir(dir string) *CombinedLoader {
 	loaders := []*Loader{}
 

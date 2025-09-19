@@ -22,6 +22,7 @@ func (ft *FigText) String() string {
 	for _, line := range ft.art {
 		str += string(line) + "\n"
 	}
+
 	return str
 }
 

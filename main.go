@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -178,7 +179,7 @@ func main() {
 
 	if ic > 1 && ic < 6 {
 		outputWidthString := strconv.Itoa(*outputWidth)
-		var infoData = []string{2: fontsSource, 3: *fontname, 4: outputWidthString, 5: "flf2"}
+		infoData := []string{2: fontsSource, 3: *fontname, 4: outputWidthString, 5: "flf2"}
 		printInfoCode(ic, infoData)
 		os.Exit(0)
 	} else if ic != -1 {
@@ -192,7 +193,7 @@ func main() {
 		for {
 			msg, err = reader.ReadString('\n')
 			if err != nil {
-				if err == io.EOF {
+				if errors.Is(err, io.EOF) {
 					os.Exit(0)
 				}
 				msg = ""

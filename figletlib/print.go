@@ -8,10 +8,14 @@ import (
 	"strings"
 )
 
+const (
+	alignRight = "right"
+)
+
 func FPrintLines(w io.Writer, lines []FigText, hardblank rune, maxwidth int, align string) {
 	padleft := func(linelen int) {
 		switch align {
-		case "right":
+		case alignRight:
 			_, _ = fmt.Fprint(w, strings.Repeat(" ", maxwidth-linelen))
 		case "center":
 			_, _ = fmt.Fprint(w, strings.Repeat(" ", (maxwidth-linelen)/2))
@@ -27,7 +31,7 @@ func FPrintLines(w io.Writer, lines []FigText, hardblank rune, maxwidth int, ali
 				}
 				_, _ = fmt.Fprintf(w, "%c", outchar)
 			}
-			if len(subline) < maxwidth && align != "right" {
+			if len(subline) < maxwidth && align != alignRight {
 				_, _ = fmt.Fprintln(w)
 			}
 		}
@@ -50,14 +54,15 @@ func PrintMsg(msg string, f *Font, maxwidth int, s Settings, align string) {
 func SprintMsg(msg string, f *Font, maxwidth int, s Settings, align string) string {
 	buf := bytes.NewBufferString("")
 	FPrintMsg(buf, msg, f, maxwidth, s, align)
+
 	return buf.String()
 }
 
-// FPrintColoredLines prints lines with color support
+// FPrintColoredLines prints lines with color support.
 func FPrintColoredLines(w io.Writer, lines []FigText, hardblank rune, maxwidth int, align string, colorConfig ColorConfig) {
 	padleft := func(linelen int) {
 		switch align {
-		case "right":
+		case alignRight:
 			_, _ = fmt.Fprint(w, strings.Repeat(" ", maxwidth-linelen))
 		case "center":
 			_, _ = fmt.Fprint(w, strings.Repeat(" ", (maxwidth-linelen)/2))
@@ -97,25 +102,25 @@ func FPrintColoredLines(w io.Writer, lines []FigText, hardblank rune, maxwidth i
 					_, _ = fmt.Fprintf(w, "%c", outchar)
 				}
 			}
-			if len(subline) < maxwidth && align != "right" {
+			if len(subline) < maxwidth && align != alignRight {
 				_, _ = fmt.Fprintln(w)
 			}
 		}
 	}
 }
 
-// PrintColoredLines prints lines with color support to stdout
+// PrintColoredLines prints lines with color support to stdout.
 func PrintColoredLines(lines []FigText, hardblank rune, maxwidth int, align string, colorConfig ColorConfig) {
 	FPrintColoredLines(os.Stdout, lines, hardblank, maxwidth, align, colorConfig)
 }
 
-// FPrintColoredMsg prints a message with color support
+// FPrintColoredMsg prints a message with color support.
 func FPrintColoredMsg(w io.Writer, msg string, f *Font, maxwidth int, s Settings, align string, colorConfig ColorConfig) {
 	lines := GetLines(msg, f, maxwidth, s)
 	FPrintColoredLines(w, lines, s.HardBlank(), maxwidth, align, colorConfig)
 }
 
-// PrintColoredMsg prints a message with color support to stdout
+// PrintColoredMsg prints a message with color support to stdout.
 func PrintColoredMsg(msg string, f *Font, maxwidth int, s Settings, align string, colorConfig ColorConfig) {
 	FPrintColoredMsg(os.Stdout, msg, f, maxwidth, s, align, colorConfig)
 }

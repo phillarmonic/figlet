@@ -7,12 +7,12 @@ import (
 	"strings"
 )
 
-// RGB represents a color with red, green, blue components (0-255)
+// RGB represents a color with red, green, blue components (0-255).
 type RGB struct {
 	R, G, B uint8
 }
 
-// ColorMode represents different coloring modes
+// ColorMode represents different coloring modes.
 type ColorMode int
 
 const (
@@ -21,14 +21,14 @@ const (
 	ColorModeRainbow
 )
 
-// ColorConfig holds color configuration
+// ColorConfig holds color configuration.
 type ColorConfig struct {
 	Mode       ColorMode
 	StartColor RGB
 	EndColor   RGB
 }
 
-// ANSI escape codes for colors
+// ANSI escape codes for colors.
 const (
 	Reset = "\033[0m"
 )
@@ -57,6 +57,7 @@ func ParseColor(colorStr string) (RGB, error) {
 		if err != nil {
 			return RGB{}, fmt.Errorf("invalid hex color: %s", colorStr)
 		}
+
 		return RGB{uint8(r), uint8(g), uint8(b)}, nil
 	}
 
@@ -113,12 +114,12 @@ func ParseColor(colorStr string) (RGB, error) {
 	return RGB{}, fmt.Errorf("unknown color: %s", colorStr)
 }
 
-// ToANSI converts RGB to ANSI escape sequence for 24-bit color
+// ToANSI converts RGB to ANSI escape sequence for 24-bit color.
 func (rgb RGB) ToANSI() string {
 	return fmt.Sprintf("\033[38;2;%d;%d;%dm", rgb.R, rgb.G, rgb.B)
 }
 
-// Interpolate creates a color between two colors based on factor (0.0 to 1.0)
+// Interpolate creates a color between two colors based on factor (0.0 to 1.0).
 func (start RGB) Interpolate(end RGB, factor float64) RGB {
 	if factor < 0 {
 		factor = 0
@@ -134,7 +135,7 @@ func (start RGB) Interpolate(end RGB, factor float64) RGB {
 	return RGB{uint8(r), uint8(g), uint8(b)}
 }
 
-// HSVtoRGB converts HSV to RGB
+// HSVtoRGB converts HSV to RGB.
 func HSVtoRGB(h, s, v float64) RGB {
 	c := v * s
 	x := c * (1 - math.Abs(math.Mod(h/60, 2)-1))
@@ -164,7 +165,7 @@ func HSVtoRGB(h, s, v float64) RGB {
 	}
 }
 
-// GetRainbowColor returns a rainbow color based on position (0.0 to 1.0)
+// GetRainbowColor returns a rainbow color based on position (0.0 to 1.0).
 func GetRainbowColor(position float64) RGB {
 	// Ensure position is in range [0, 1]
 	if position < 0 {
@@ -181,7 +182,7 @@ func GetRainbowColor(position float64) RGB {
 	return HSVtoRGB(hue, 1.0, 1.0)
 }
 
-// ApplyColor applies color to a character based on its position and configuration
+// ApplyColor applies color to a character based on its position and configuration.
 func ApplyColor(char rune, position float64, totalWidth int, config ColorConfig) string {
 	if config.Mode == ColorModeNone {
 		return string(char)
@@ -194,6 +195,8 @@ func ApplyColor(char rune, position float64, totalWidth int, config ColorConfig)
 		color = config.StartColor.Interpolate(config.EndColor, position)
 	case ColorModeRainbow:
 		color = GetRainbowColor(position)
+	case ColorModeNone:
+		return string(char)
 	default:
 		return string(char)
 	}
