@@ -127,35 +127,130 @@ This is supported, but it behaves differently in this version. In the original i
 
 ### Use as a library
 
-You can generate your own text at runtime using `figletlib`.
+You can generate your own text at runtime using `figletlib`. The library supports **embedded fonts** (no external files needed) and **color output**.
 
-Here's an example of how to write to an arbitrary output stream, eg. `http.ResponseWriter`:
+#### **Basic Usage with Embedded Fonts**
 
 ```go
+package main
+
 import (
 	"fmt"
-	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/phillarmonic/figlet/figletlib"
 )
 
-func init() {
-	http.HandleFunc("/", handler)
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	cwd, _ := os.Getwd()
-	loader := figletlib.NewDirLoader(filepath.Join(cwd, "fonts"))
-
-	f, err := loader.GetFontByName("slant")
+func main() {
+	// Use embedded fonts - no external files needed!
+	loader := figletlib.NewEmbededLoader()
+	
+	font, err := loader.GetFontByName("standard")
 	if err != nil {
-		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintln(w, "Could not find that font!")
-		return
+		panic(err)
 	}
-
-	figletlib.FPrintMsg(w, "Hello, world!", f, 80, f.Settings(), "left")
+	
+	// Print to stdout
+	figletlib.PrintMsg("Hello World!", font, 80, font.Settings(), "left")
 }
 ```
+
+#### **HTTP Server Example**
+
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/phillarmonic/figlet/figletlib"
+)
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	// Use embedded fonts - works anywhere!
+	loader := figletlib.NewEmbededLoader()
+	
+	font, err := loader.GetFontByName("big")
+	if err != nil {
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintln(w, "Could not load font!")
+		return
+	}
+	
+	w.Header().Set("Content-Type", "text/plain")
+	figletlib.FPrintMsg(w, "Hello, Web!", font, 80, font.Settings(), "center")
+}
+
+func main() {
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(":8080", nil)
+}
+```
+
+#### **Colorful Output**
+
+```go
+package main
+
+import (
+	"os"
+
+	"github.com/phillarmonic/figlet/figletlib"
+)
+
+func main() {
+	loader := figletlib.NewEmbededLoader()
+	font, _ := loader.GetFontByName("big")
+	
+	// Rainbow colors
+	rainbowConfig := figletlib.ColorConfig{
+		Mode: figletlib.ColorModeRainbow,
+	}
+	figletlib.PrintColoredMsg("RAINBOW!", font, 80, font.Settings(), "left", rainbowConfig)
+	
+	// Gradient colors
+	startColor, _ := figletlib.ParseColor("red")
+	endColor, _ := figletlib.ParseColor("blue")
+	gradientConfig := figletlib.ColorConfig{
+		Mode:       figletlib.ColorModeGradient,
+		StartColor: startColor,
+		EndColor:   endColor,
+	}
+	figletlib.PrintColoredMsg("GRADIENT!", font, 80, font.Settings(), "left", gradientConfig)
+}
+```
+
+#### **Combined Loader (External + Embedded)**
+
+```go
+package main
+
+import (
+	"github.com/phillarmonic/figlet/figletlib"
+)
+
+func main() {
+	// Try external fonts first, fall back to embedded
+	loader := figletlib.NewCombinedLoaderWithDir("./custom-fonts")
+	
+	// This will use custom font if available, or embedded font as fallback
+	font, err := loader.GetFontByName("standard")
+	if err != nil {
+		panic(err)
+	}
+	
+	figletlib.PrintMsg("Best of both worlds!", font, 80, font.Settings(), "left")
+}
+```
+
+#### **Available Functions**
+
+- `NewEmbededLoader()` - Use embedded fonts (recommended)
+- `NewDirLoader(dir)` - Use fonts from directory
+- `NewCombinedLoaderWithDir(dir)` - Use external + embedded fonts
+- `PrintMsg()` - Print to stdout
+- `FPrintMsg(writer, ...)` - Print to any io.Writer
+- `PrintColoredMsg()` - Print with colors to stdout
+- `FPrintColoredMsg(writer, ...)` - Print with colors to any io.Writer
+- `ParseColor(colorStr)` - Parse color strings (hex, rgb(), named colors)
