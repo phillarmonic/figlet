@@ -165,12 +165,12 @@ func ReadFontFromBytes(bytes []byte) (*Font, error) {
 
 	// code-tagged characters
 	for currline < len(lines) {
-		var code rune
+		var code int32
 		if _, err := fmt.Sscan(lines[currline], &code); err != nil {
 			// End of font data, not an error
 			break
 		}
-		if !utf8.ValidRune(code) {
+		if code >= 0 && !utf8.ValidRune(code) {
 			return nil, fmt.Errorf("invalid code-tagged character %d in font data", code)
 		}
 
