@@ -62,7 +62,9 @@ func Test_smush_combines_2_hardblanks_when_SMHardBlank(t *testing.T) {
 }
 
 func Test_smush_doesnt_combine_any_hardblank_when_not_SMHardBlank(t *testing.T) {
-	s := testSettings(SMSmush + SMKern)
+	// Use a rule-based smush mode so this doesn't fall into universal smushing,
+	// where visible characters intentionally override hardblanks.
+	s := testSettings(SMSmush + SMKern + SMEqual)
 
 	if x := smushem('$', '|', s); x != 0 {
 		t.Errorf("returned %q", x)

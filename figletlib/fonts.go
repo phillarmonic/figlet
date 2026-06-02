@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 // Ä Ö Ü ä ö ü ß.
@@ -164,14 +165,17 @@ func ReadFontFromBytes(bytes []byte) (*Font, error) {
 
 	// code-tagged characters
 	for currline < len(lines) {
-		var code int
+		var code rune
 		if _, err := fmt.Sscan(lines[currline], &code); err != nil {
 			// End of font data, not an error
 			break
 		}
+		if !utf8.ValidRune(code) {
+			return nil, fmt.Errorf("invalid code-tagged character %d in font data", code)
+		}
 
 		currline++
-		f.chars[rune(code)] = readFontChar(lines, currline, charheight)
+		f.chars[code] = readFontChar(lines, currline, charheight)
 
 		currline += charheight
 	}

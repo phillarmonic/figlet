@@ -155,6 +155,15 @@ func main() {
 }
 ```
 
+To reserve a fixed left margin while keeping alignment behavior, use `PrintOptions`:
+
+```go
+figletlib.PrintMsgWithOptions("Hello World!", font, 80, font.Settings(), figletlib.PrintOptions{
+	Align:      "left",
+	LeftMargin: 1,
+})
+```
+
 #### **HTTP Server Example**
 
 ```go

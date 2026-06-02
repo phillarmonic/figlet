@@ -1,0 +1,37 @@
+# drun (do-run) CLI is a fast, semantic task runner with 
+# its own powerful automation language. Effortless tasks, serious speed.
+# Learn more at https://github.com/phillarmonic/drun
+
+version: 2.0
+
+project "FIGlet" version "1.0":
+	requires tools:
+		go >= 1.25
+		golangci-lint >= 2.12
+		gosec
+
+task "default" means "FIGlet Drun Spec":
+	info "FIGlet Drun specification"
+
+task "vet" means "Go Vet":
+    step "Go vet"
+    run "go vet ./..."
+
+task "test" means "Test pipeline":
+	step "Testing"
+    run "go test ./..."
+
+task "lint" means "Lint pipeline":
+	step "Linting"
+    run "golangci-lint run"
+
+task "sec" means "Security check":
+    step "Security check"
+    run "gosec -severity high ./..."
+
+task "ci" means "Run the whole CI lifecycle":
+    step "Executing CI pipeline"
+    call task vet
+    call task lint
+    call task test
+    call task sec
